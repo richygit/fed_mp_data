@@ -1,6 +1,5 @@
 require 'scraperwiki'
 require 'mechanize'
-require 'pry'
 
 def detail?(type, dl)
   dl.at(:dt).inner_text == ":#{type}"
