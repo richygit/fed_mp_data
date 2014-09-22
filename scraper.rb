@@ -1,6 +1,5 @@
 require 'scraperwiki'
 require 'mechanize'
-require 'pry'
 
 require_relative 'web_scraper'
 require_relative 'csv_scraper'
