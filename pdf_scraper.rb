@@ -1,6 +1,7 @@
 require 'pdf-reader'
 require 'open-uri'
 
+#get MP contact details
 class PdfScraper
   FED_MP_PDF_URL = "http://www.aph.gov.au/~/media/03%20Senators%20and%20Members/32%20Members/Lists/MemList.pdf"
 

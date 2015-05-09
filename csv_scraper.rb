@@ -1,6 +1,7 @@
 require 'csv'
 require 'open-uri'
 
+#get detailed info of MPs including titles and cabinet positions
 class CsvScraper
   FED_MP_URL = 'http://www.aph.gov.au/~/media/03%20Senators%20and%20Members/Address%20Labels%20and%20CSV%20files/SurnameRepsCSV.csv'
 

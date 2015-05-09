@@ -1,26 +1,42 @@
+require 'mechanize'
+require 'logger'
+
+#get social media contact details of MPs
 class WebScraper
 
-  def scrape
+  SEARCH_DOMAIN = 'www.aph.gov.au'
+  SEARCH_PATH = '/Senators_and_Members/Parliamentarian_Search_Results'
+  SEARCH_URL = "http://#{SEARCH_DOMAIN}#{SEARCH_PATH}"
+
+  def initialize
+    @logger = Logger.new File.new('log/development.log', 'a+')
+  end
+
+  def scrape_mps
     records = {}
     @agent = Mechanize.new
-    search_url = 'http://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results'
 
-    page = @agent.get "#{search_url}?mem=1&q="
+    page = @agent.get "#{SEARCH_URL}?mem=1&q="
 
     while page.link_with(:text => 'Next')
-      puts "Saving results from Representatives page"
+      @logger.debug "Saving results from Representatives page"
       records.merge!(save_results_from_page(page, :representatives))
-      page = @agent.get search_url + page.link_with(:text => 'Next').href
+      page = @agent.get SEARCH_URL + page.link_with(:text => 'Next').href
     end
 
     records.merge!(save_results_from_page(page, :representatives)) # Save the final page
 
-    page = @agent.get "#{search_url}?sen=1&q="
+  end
+
+  def scrape_senators
+    records = {}
+    @agent = Mechanize.new
+    page = @agent.get "#{SEARCH_URL}?sen=1&q="
 
     while page.link_with(:text => 'Next')
-      puts "Saving results from Senate page"
+      @logger.debug "Saving results from Senate page"
       records.merge!(save_results_from_page(page, :senate))
-      page = @agent.get search_url + page.link_with(:text => 'Next').href
+      page = @agent.get SEARCH_URL + page.link_with(:text => 'Next').href
     end
 
     records.merge!(save_results_from_page(page, :senate)) # Save the final page
@@ -60,7 +76,7 @@ private
   def save_details_from_mp_page(url)
     agent = Mechanize.new
     page = agent.get url
-    puts "Scraping #### #{url}"
+    @logger.debug "Scraping #### #{url}"
 
     details = {}
     page.search('.col-third').each do |col|

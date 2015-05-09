@@ -1,0 +1,46 @@
+---
+http_interactions:
+- request:
+    method: head
+    uri: http://www.aph.gov.au/Senators_and_Members/Parliamentarian_Search_Results
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - no-cache
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '40993'
+      Content-Type:
+      - text/html; charset=utf-8
+      Expires:
+      - '-1'
+      Last-Modified:
+      - Tue, 26 Nov 2013 05:43:22 GMT
+      Set-Cookie:
+      - ASP.NET_SessionId=32bzvg2ro5wpegrkcnvmkzyp; path=/; HttpOnly
+      - TS012ecdf6=01a57d488d0f8e0b8f2dfe5e91011bb9e8fd8ae75dcc9ec5359b274b5a1a5fa8b5588dba68bb656af93ae7d0f5992c32f4bb246de0;
+        Path=/
+      X-Aspnet-Version:
+      - 4.0.30319
+      X-Powered-By:
+      - ASP.NET
+      Date:
+      - Sat, 09 May 2015 10:59:28 GMT
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: 
+  recorded_at: Sat, 09 May 2015 10:59:28 GMT
+recorded_with: VCR 2.9.3
