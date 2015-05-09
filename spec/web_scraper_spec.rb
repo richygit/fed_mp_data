@@ -1,12 +1,15 @@
 require 'spec_helper'
 require_relative '../web_scraper'
 
-RSpec.describe WebScraper, :vcr => true do
+RSpec.describe WebScraper do
   it "can download the search page" do
-    Net::HTTP.start(WebScraper::SEARCH_DOMAIN, 80) {|http| expect(http.head(WebScraper::SEARCH_PATH).code).to eq "200" }
+    VCR.turned_off do
+      WebMock.allow_net_connect!
+      Net::HTTP.start(WebScraper::SEARCH_HOST, 80) {|http| expect(http.head(WebScraper::SEARCH_PATH).code).to eq "200" }
+    end
   end
 
-  describe "#scrape" do
+  describe "#scrape", :vcr do
     it "finds the right MP data" do
       records = subject.scrape_mps
 

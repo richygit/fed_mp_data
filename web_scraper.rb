@@ -4,9 +4,9 @@ require 'logger'
 #get social media contact details of MPs
 class WebScraper
 
-  SEARCH_DOMAIN = 'www.aph.gov.au'
+  SEARCH_HOST = 'www.aph.gov.au'
   SEARCH_PATH = '/Senators_and_Members/Parliamentarian_Search_Results'
-  SEARCH_URL = "http://#{SEARCH_DOMAIN}#{SEARCH_PATH}"
+  SEARCH_URL = "http://#{SEARCH_HOST}#{SEARCH_PATH}"
 
   def initialize
     @logger = Logger.new File.new('log/development.log', 'a+')
