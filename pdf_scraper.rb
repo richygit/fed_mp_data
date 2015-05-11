@@ -26,14 +26,8 @@ private
     line_buffer = []
     lines.each_with_index do |line, index|
       if email = get_email(line)
-        puts email
         electorate = find_electorate(line_buffer)
-        if electorate
-          puts "## Already got an email for #{electorate}" if records[electorate]
-          records[electorate] = email 
-        else
-          puts "## Can't find electorate for #{email}"
-        end
+        records[electorate] = email if electorate
         line_buffer = []
       else
         line_buffer << line
@@ -44,7 +38,6 @@ private
 
   def get_email(line)
     false unless line
-    #puts line if line.index('E-mail:')
     line = line[EMAIL_START_COL..-1]
     if line && line.strip.start_with?('E-mail:')
       line.strip.gsub('E-mail:', '').strip
@@ -53,11 +46,10 @@ private
     end
   end
 
-  #TODO - this isn't working
   def find_electorate(lines)
     lines.reverse!.each do |line|
-      line = line[ELECTORATE_START_COL..-1]
-      if line && line.split(',').first
+      line = line[ELECTORATE_START_COL..EMAIL_START_COL]
+      if line && line.index(',')
         return line.split(',').first.strip.chomp(',')
       end
     end

@@ -16,6 +16,7 @@ describe PdfScraper do
       expect(records["Durack"]).to eq 'Melissa.Price.MP@aph.gov.au'
     end
 
+    #TODO this gets everything except tony abbott and clive palmer
     it "scrapes the right number of MPs" do
       records = subject.scrape
       expect(records.size).to eq 149
