@@ -14,4 +14,5 @@ group :development do
   gem 'vcr'
   gem 'webmock'
   gem 'awesome_print'
+  gem 'morph-cli'
 end

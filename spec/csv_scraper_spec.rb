@@ -9,11 +9,7 @@ describe CsvScraper do
     end
   end
 
-  describe "#scrape" do
-    before(:each) do
-      allow(subject).to receive_messages(:open => 'spec/fixtures/SurnameRepsCSV.csv')
-    end
-
+  describe "#scrape", :vcr do
     it "scrapes MPs details correctly" do
       records = subject.scrape
       curtin = records["Curtin"]

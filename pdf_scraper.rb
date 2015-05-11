@@ -3,46 +3,64 @@ require 'open-uri'
 
 #get MP contact details
 class PdfScraper
-  FED_MP_PDF_URL = "http://www.aph.gov.au/~/media/03%20Senators%20and%20Members/32%20Members/Lists/MemList.pdf"
+  PDF_HOST = 'www.aph.gov.au'
+  PDF_PATH = '/~/media/03%20Senators%20and%20Members/32%20Members/Lists/MemList.pdf'
+  PDF_URL = "http://#{PDF_HOST}#{PDF_PATH}"
 
-  def get_electorate(line)
-    if (line =~ /^[a-zA-Z\*]/) && !line.start_with?("Name") && @electorate.nil?
-      tokens = line.split(/[ ]{2,}/)
-      @electorate = tokens[1].gsub(',','') if tokens[1]
-      if @electorate.nil? || @electorate.strip.empty?
-        @electorate = @prev_line.strip.match(/^[a-zA-Z']*/)[0]
+  def scrape
+    reader = PDF::Reader.new(open(PDF_URL))
+    lines = []
+    reader.pages.each do |page|
+      lines << page.text.split("\n")
+    end
+    read_mp_data(lines.flatten)
+  end
+
+private
+
+  EMAIL_START_COL = 67
+  ELECTORATE_START_COL = 37
+
+  def read_mp_data(lines)
+    records = {}
+    line_buffer = []
+    lines.each_with_index do |line, index|
+      if email = get_email(line)
+        puts email
+        electorate = find_electorate(line_buffer)
+        if electorate
+          puts "## Already got an email for #{electorate}" if records[electorate]
+          records[electorate] = email 
+        else
+          puts "## Can't find electorate for #{email}"
+        end
+        line_buffer = []
+      else
+        line_buffer << line
       end
     end
+    records
   end
-  
+
   def get_email(line)
-    if line.strip.start_with?("E-mail:")
-      line.gsub("E-mail:", '').strip
+    false unless line
+    #puts line if line.index('E-mail:')
+    line = line[EMAIL_START_COL..-1]
+    if line && line.strip.start_with?('E-mail:')
+      line.strip.gsub('E-mail:', '').strip
     else
       nil
     end
   end
 
-  def read_mps(lines)
-    lines.each do |line|
-      get_electorate(line)
-      if email = get_email(line)
-        @records[@electorate] = {email: email}
-        @electorate = nil
+  #TODO - this isn't working
+  def find_electorate(lines)
+    lines.reverse!.each do |line|
+      line = line[ELECTORATE_START_COL..-1]
+      if line && line.split(',').first
+        return line.split(',').first.strip.chomp(',')
       end
-      @prev_line = line
     end
+    nil
   end
-
-  def scrape
-    @records = {}
-    reader = PDF::Reader.new(open(FED_MP_PDF_URL))
-    reader.pages.each do |page|
-      read_mps(page.text.split("\n"))
-    end
-    @records
-  end
-
-private
 end
-

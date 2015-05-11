@@ -1,5 +1,6 @@
 require 'mechanize'
 require 'logger'
+require 'fileutils'
 
 #get social media contact details of MPs
 class WebScraper
@@ -8,8 +9,11 @@ class WebScraper
   SEARCH_PATH = '/Senators_and_Members/Parliamentarian_Search_Results'
   SEARCH_URL = "http://#{SEARCH_HOST}#{SEARCH_PATH}"
 
+  LOG_DIR = 'log/development.log'
+
   def initialize
-    @logger = Logger.new File.new('log/development.log', 'a+')
+    FileUtils.mkpath LOG_DIR
+    @logger = Logger.new File.new("#{LOG_DIR}/development.log", 'a+')
   end
 
   def scrape_mps
