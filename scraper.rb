@@ -40,4 +40,5 @@ class Scraper
 end
 
 # TODO: senators, states
+ScraperWiki.config = { db: 'data.sqlite', default_table_name: 'data' }
 Scraper.new.main
