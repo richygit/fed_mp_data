@@ -11,7 +11,7 @@ RSpec.describe WebScraper do
 
   describe "#scrape", :vcr do
     it "finds the right MP data" do
-      records = subject.scrape_mps
+      records = subject.scrape
 
       expect(records.count).to eq 150
       expect(records["Hasluck"]).to eq HASLUCK_RECORD
