@@ -19,7 +19,7 @@ describe PdfScraper do
     #TODO this gets everything except tony abbott and clive palmer
     it "scrapes the right number of MPs" do
       records = subject.scrape
-      expect(records.size).to eq 149
+      expect(records.size).to eq 148
     end
   end
 end

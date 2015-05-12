@@ -1,30 +1,44 @@
 require 'scraperwiki'
 require 'mechanize'
+require 'pry'
 
 require_relative 'web_scraper'
 require_relative 'csv_scraper'
 require_relative 'pdf_scraper'
 
-def merge_into_csv(source, csv)
-  csv.each do |electorate, record|
-    record.merge!(source[electorate]) if source[electorate]
+class Scraper
+  LOG_DIR = 'log/development.log'
+
+  def initialize
+    FileUtils.mkpath LOG_DIR
+    @logger = Logger.new File.new("#{LOG_DIR}/development.log", 'a+')
   end
-  csv
+
+  def merge_into_csv(source, csv)
+    csv.each do |electorate, record|
+      record.merge!(source[electorate]) if source[electorate]
+    end
+    csv
+  end
+
+  def main
+    @logger.info('Scraping CSV')
+    csv_records = CsvScraper.new.scrape
+    @logger.info("Scraping web")
+    web_records = WebScraper.new.scrape
+    csv_records = merge_into_csv(web_records, csv_records)
+    @logger.info("Scraping PDF")
+    pdf_records = PdfScraper.new.scrape
+    csv_records.each do |electorate, record|
+      record.merge!(email: pdf_records[electorate]) if pdf_records[electorate]
+    end
+
+    csv_records.each do |electorate, record|
+      puts "### Saving #{record[:full_name]}"
+      ScraperWiki::save_sqlite([:electorate], record, 'mps')
+    end
+  end
 end
 
-def main
-  csv_records = CsvScraper.new.scrape
-  web_mp_records = WebScraper.new.scrape_mps
-  csv_records = merge_into_csv(web_mp_records, csv_records)
-  pdf_records = PdfScraper.new.scrape
-  csv_records = merge_into_csv(pdf_records, csv_records)
-
-  csv_records.each do |electorate, record|
-    puts "### Saving #{record[:full_name]}"
-    puts record
-    ScraperWiki::save_sqlite [:aph_id], record
-  end
-end
-
-# TODO: test, senators, states
-main
+# TODO: senators, states
+Scraper.new.main

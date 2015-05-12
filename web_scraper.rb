@@ -16,7 +16,7 @@ class WebScraper
     @logger = Logger.new File.new("#{LOG_DIR}/development.log", 'a+')
   end
 
-  def scrape_mps
+  def scrape
     records = {}
     @agent = Mechanize.new
 
