@@ -34,7 +34,7 @@ class Scraper
 
     csv_records.each do |electorate, record|
       puts "### Saving #{record[:full_name]}"
-      ScraperWiki::save_sqlite([:electorate], record, 'mps')
+      ScraperWiki::save_sqlite([:electorate], record)
     end
   end
 end
