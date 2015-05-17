@@ -7,9 +7,11 @@ require 'pry-byebug'
 real_requests = ENV['REAL_REQUESTS']
 
 RSpec.configure do |config|
-    config.before(:each) do
-        VCR.eject_cassette
-    end if real_requests
+  config.before(:each) do
+      VCR.eject_cassette
+  end if real_requests
+  config.filter_run :focus => true
+  config.run_all_when_everything_filtered = true
 end
 
 VCR.configure do |c|

@@ -27,7 +27,7 @@ private
     lines.each_with_index do |line, index|
       if email = get_email(line)
         electorate = find_electorate(line_buffer)
-        records[electorate] = email if electorate
+        records[electorate] = {email: email} if electorate
         line_buffer = []
       else
         line_buffer << line
