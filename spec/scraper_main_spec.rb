@@ -2,7 +2,7 @@ require 'spec_helper'
 require_relative '../scraper_main'
 require 'pry'
 
-RSpec.describe ScraperMain, focus: true do
+RSpec.describe ScraperMain do
   describe "#main" do
     before(:each) do
       allow_any_instance_of(CsvScraper).to receive(:scrape).and_return({grayndler: {'first_name' => 'Anthony', 'last_name' => 'Albanese'} })
