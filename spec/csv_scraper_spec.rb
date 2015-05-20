@@ -1,7 +1,7 @@
 require_relative '../csv_scraper'
 require 'open-uri'
 
-describe CsvScraper do
+describe CsvScraper, focus: true do
   it "can download the CSV files" do
     VCR.turned_off do
       WebMock.allow_net_connect!
@@ -17,9 +17,9 @@ describe CsvScraper do
       expect(curtin.to_h).to eq CURTIN_RECORD
       durack = records["Durack"]
       expect(durack.to_h).to eq DURACK_RECORD
-      xenophon = records["SA.Xenophon.Nicholas"]
+      xenophon = records["SA.Nicholas Xenophon"]
       expect(xenophon.to_h).to eq XENOPHON_RECORD
-      parry = records["Tas.Parry.Stephen"]
+      parry = records["Tas.Stephen Parry"]
       expect(parry.to_h).to eq PARRY_RECORD
     end
 
