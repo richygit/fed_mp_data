@@ -9,11 +9,22 @@ RSpec.describe WebScraper do
     end
   end
 
-  describe "#scrape", :vcr do
+  describe "#scrape_mps", :vcr do
     it "finds the right MP data" do
       records = subject.scrape_mps
 
       expect(records.count).to eq 150
+      expect(records["Hasluck"]).to eq HASLUCK_RECORD
+      expect(records["Grayndler"]).to eq GRAYNDLER_RECORD
+    end
+  end
+
+  describe "#scrape_senators", :vcr do
+    it "finds the right senator data" do
+      records = subject.scrape_senators
+
+      binding.pry
+      expect(records.count).to eq 75
       expect(records["Hasluck"]).to eq HASLUCK_RECORD
       expect(records["Grayndler"]).to eq GRAYNDLER_RECORD
     end

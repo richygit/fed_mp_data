@@ -16,6 +16,10 @@ class WebScraper
     @logger = Logger.new File.new("#{LOG_DIR}/development.log", 'a+')
   end
 
+  def scrape
+    scrape_mps.merge(scrape_senators)
+  end
+
   def scrape_mps
     records = {}
     @agent = Mechanize.new
@@ -83,14 +87,26 @@ private
     @logger.debug "Scraping #### #{url}"
 
     details = {}
-    page.search('.col-third').each do |col|
-      parl_office = col.search('h3').select {|col| col.inner_text == 'Parliament Office' }
-      details.merge!(get_details('parliament', col)) if parl_office.size > 0
-      electorate_office = col.search('h3').select {|col| col.inner_text == 'Electorate Office' }
-      details.merge!(get_details('electorate', col)) if electorate_office.size > 0
+    page.search('.col-third').each do |col_outer|
+      parl_office = col_outer.search('h3').select {|col| col.inner_text == 'Parliament Office' }
+      details.merge!(get_details('parliament', col_outer)) if parl_office.size > 0
+      electorate_office = col_outer.search('h3').select {|col| col.inner_text == 'Electorate Office' }
+      details.merge!(get_details('electorate', col_outer)) if electorate_office.size > 0
     end
     details
 
+  end
+
+  def representative_key(record, house)
+    house == :representatives ? electorate_key(record[:electorate]) : senator_key(record)
+  end
+
+  def clean_senator_name(name)
+    name.downcase.gsub('senator', '').gsub('the hon', '').strip
+  end
+
+  def senator_key(record)
+    "#{electorate_key(record)}.#{clean_senator_name(record[:full_name])}"
   end
 
   def electorate_key(electorate)
@@ -140,7 +156,7 @@ private
       details = save_details_from_mp_page(profile_page_url)
       record.merge!(details)
       
-      records[electorate_key(electorate)] = record
+      records[representative_key(record, house)] = record
     end
     records
   end

@@ -10,13 +10,15 @@ describe PdfScraper do
   end
 
   describe "#scrape", :vcr do
-    it "scrapes MPs details correctly" do
+    it "scrapes details correctly" do
       records = subject.scrape
       expect(records["Curtin"]).to eq({email: 'Julie.Bishop.MP@aph.gov.au'})
       expect(records["Durack"]).to eq({email: 'Melissa.Price.MP@aph.gov.au'})
+
+      #TODO: test senator data
     end
 
-    #TODO this gets everything except tony abbott and clive palmer
+    #this gets everything except tony abbott and clive palmer
     it "scrapes the right number of MPs" do
       records = subject.scrape
       expect(records.size).to eq 148
