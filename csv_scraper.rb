@@ -29,7 +29,7 @@ private
   def parse_record(row, headers, senator)
     record = {}
     if senator 
-      key = "#{row['State']}.#{row['First Name']} #{row['Surname']}" 
+      key = "#{row['State']}.#{row['First Name']} #{row['Surname']}".downcase
       record[:type] = 'senator'
     else
       key = row['"Electorate"']

@@ -17,9 +17,9 @@ describe CsvScraper, focus: true do
       expect(curtin.to_h).to eq CURTIN_RECORD
       durack = records["Durack"]
       expect(durack.to_h).to eq DURACK_RECORD
-      xenophon = records["SA.Nicholas Xenophon"]
+      xenophon = records["sa.nicholas xenophon"]
       expect(xenophon.to_h).to eq XENOPHON_RECORD
-      parry = records["Tas.Stephen Parry"]
+      parry = records["tas.stephen parry"]
       expect(parry.to_h).to eq PARRY_RECORD
     end
 

@@ -105,8 +105,21 @@ private
     name.downcase.gsub('senator', '').gsub('the hon', '').strip
   end
 
+  STATES = {'South Australia' => 'sa',
+  'Queensland' => 'qld',
+  'Tasmania' => 'tas',
+  'New South Wales' => 'nsw',
+  'Western Australia' => 'wa',
+  'Australian Capital Territory' => 'act',
+  'Northern Territory' => 'nt',
+  'Victoria' => 'vic'}
+
+  def state_abbr(state)
+    STATES[state]
+  end
+
   def senator_key(record)
-    "#{electorate_key(record)}.#{clean_senator_name(record[:full_name])}"
+    "#{state_abbr(record[:electorate])}.#{clean_senator_name(record[:full_name])}".downcase
   end
 
   def electorate_key(electorate)

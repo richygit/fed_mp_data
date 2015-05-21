@@ -25,10 +25,42 @@ RSpec.describe WebScraper do
 
       binding.pry
       expect(records.count).to eq 75
-      expect(records["Hasluck"]).to eq HASLUCK_RECORD
-      expect(records["Grayndler"]).to eq GRAYNDLER_RECORD
+      expect(records["sa.cory bernardi"]).to eq CORY_BERNARDI_RECORD
+      expect(records["sa.penny wright"]).to eq PENNY_WRIGHT_RECORD
     end
   end
+
+  CORY_BERNARDI_RECORD = {
+   :house=>"senate",
+   :aph_id=>"G0D",
+   :full_name=>"Senator Cory Bernardi",
+   :electorate=>"South Australia",
+   :party=>"Liberal Party of Australia",
+   :profile_page=>"http://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=G0D",
+   :contact_page=>"http://www.aph.gov.au/Senators_and_Members/Contact_Senator_or_Member?MPID=G0D",
+   :photo_url=>"http://parlinfo.aph.gov.au/parlInfo/download/handbook/allmps/G0D/upload_ref_binary/G0D.JPG",
+   :email=>nil,
+   :facebook=>nil,
+   :twitter=>nil,
+   :website=>"http://www.senatorbernardi.com/",
+   "parliament_telephone"=>"(02) 6277 3278",
+   "parliament_fax"=>"(02) 6277 5783"}
+
+  PENNY_WRIGHT_RECORD = {
+   :house=>"senate",
+   :aph_id=>"200287",
+   :full_name=>"Senator Penny Wright",
+   :electorate=>"South Australia",
+   :party=>"Australian Greens",
+   :profile_page=>"http://www.aph.gov.au/Senators_and_Members/Parliamentarian?MPID=200287",
+   :contact_page=>"http://www.aph.gov.au/Senators_and_Members/Contact_Senator_or_Member?MPID=200287",
+   :photo_url=>"http://parlinfo.aph.gov.au/parlInfo/download/handbook/allmps/200287/upload_ref_binary/200287.jpg",
+   :email=>"senator.wright@aph.gov.au",
+   :facebook=>"http://www.facebook.com/SenatorPennyWright",
+   :twitter=>"http://www.twitter.com/pennywrites",
+   :website=>nil,
+   "parliament_telephone"=>"(02) 6277 3626",
+   "parliament_fax"=>"(02) 6277 5992"}
 
   GRAYNDLER_RECORD = {
                         :house => "representatives",
