@@ -8,6 +8,12 @@ RSpec.describe ScraperMain do
       allow_any_instance_of(CsvScraper).to receive(:scrape).and_return({grayndler: {'first_name' => 'Anthony', 'last_name' => 'Albanese'} })
       allow_any_instance_of(WebScraper).to receive(:scrape_mps).and_return({grayndler: {'twitter' => 'http://twitter.com/AlboMP', electorate: 'Grayndler'} })
       allow_any_instance_of(PdfScraper).to receive(:scrape).and_return({grayndler: {email: 'A.Albanese.MP@aph.gov.au'} })
+      @old_stdout = $stdout
+      $stdout = StringIO.new
+    end
+
+    after(:each) do
+      $stdout = @old_stdout
     end
 
     it "should merge data from each scraper" do

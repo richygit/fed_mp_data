@@ -23,7 +23,6 @@ RSpec.describe WebScraper do
     it "finds the right senator data" do
       records = subject.scrape_senators
 
-      binding.pry
       expect(records.count).to eq 75
       expect(records["sa.cory bernardi"]).to eq CORY_BERNARDI_RECORD
       expect(records["sa.penny wright"]).to eq PENNY_WRIGHT_RECORD

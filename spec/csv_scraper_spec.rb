@@ -1,7 +1,7 @@
 require_relative '../csv_scraper'
 require 'open-uri'
 
-describe CsvScraper, focus: true do
+describe CsvScraper do
   it "can download the CSV files" do
     VCR.turned_off do
       WebMock.allow_net_connect!
