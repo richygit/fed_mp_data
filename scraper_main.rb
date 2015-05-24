@@ -1,18 +1,17 @@
 require 'scraperwiki'
 require 'mechanize'
+require './logging'
 
 require_relative 'web_scraper'
 require_relative 'csv_scraper'
 require_relative 'pdf_scraper'
 
 # TODO: senators, states
-class ScraperMain
-  LOG_DIR = 'log/development.log'
+class ScraperMain < Logging
 
   def initialize
+    super
     ScraperWiki.config = { db: 'data.sqlite', default_table_name: 'data' }
-    FileUtils.mkpath LOG_DIR
-    @logger = Logger.new File.new("#{LOG_DIR}/development.log", 'a+')
   end
 
   def merge_into_csv(source, csv)
