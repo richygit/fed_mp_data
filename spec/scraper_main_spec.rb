@@ -1,6 +1,5 @@
 require 'spec_helper'
 require_relative '../scraper_main'
-require 'pry'
 
 RSpec.describe ScraperMain do
   describe "#main" do
@@ -17,7 +16,7 @@ RSpec.describe ScraperMain do
     end
   end
 
-  context "full test", :vcr do
+  describe "full test", :vcr, focus: true do
     it "should merge all data" do
       subject.main
       records = ScraperWiki::select('* FROM data WHERE electorate = "Grayndler"')

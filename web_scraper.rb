@@ -76,8 +76,9 @@ private
 
   def save_details_from_mp_page(url)
     agent = Mechanize.new
-    page = agent.get url
     @logger.debug "Scraping #### #{url}"
+    puts "Scraping #### #{url}"
+    page = agent.get url
 
     details = {}
     page.search('.col-third').each do |col_outer|

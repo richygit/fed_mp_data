@@ -50,7 +50,7 @@ private
       first_name = words[2]
     end
 
-    "#{state}.#{last_name} #{first_name}"
+    "#{state}.#{first_name} #{last_name}"
   end
 
   def read_senator_data(lines)
