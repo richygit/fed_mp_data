@@ -35,17 +35,22 @@ describe PdfScraper do
   describe "#read_senator_key" do
     it "should create senator keys" do
       line = '2      Back, Senator Christopher John (Chris)        WA          LP      Unit E5, 817 Beeliar Drive,                       (08) 9414 7288'
-      expect(subject.send(:read_senator_key, line)).to eq 'wa.back christopher'
+      expect(subject.send(:read_senator_key, line)).to eq 'wa.christopher back'
     end
 
     it "should read senators with title 'the hon'" do
       line = '1      Abetz, Senator the Hon Eric                   TAS         LP      Highbury House, 136 Davey Street,                 (03) 6224 3707'
-      expect(subject.send(:read_senator_key, line)).to eq 'tas.abetz eric'
+      expect(subject.send(:read_senator_key, line)).to eq 'tas.eric abetz'
     end
 
     it "should handle extra long name columns" do
       line = '24     Fifield, Senator the Hon Mitchell Peter (Mitch) VIC         LP      42 Florence Street, Mentone VIC 3194               (03) 9584 2455'
-      expect(subject.send(:read_senator_key, line)).to eq 'vic.fifield mitchell'
+      expect(subject.send(:read_senator_key, line)).to eq 'vic.mitchell fifield'
+    end
+
+    it "should handle state starting in a different column" do
+      line = '73     Williams, Senator John Reginald              NSW        NATS      144 Byron Street, Inverell NSW 2360              (02) 6721 4500'
+      expect(subject.send(:read_senator_key, line)).to eq 'nsw.john williams'
     end
   end
 

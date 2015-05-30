@@ -30,7 +30,7 @@ private
   MP_ELECTORATE_START_COL = 37
 
   SENATOR_EMAIL_START_COL = 73
-  SENATOR_STATE_START_COL = 53
+  SENATOR_STATE_START_COL = 52
 
   def new_senator_line?(line)
     return false if line == nil || line.length < SENATOR_STATE_START_COL
