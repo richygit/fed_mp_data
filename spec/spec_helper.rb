@@ -9,6 +9,7 @@ real_requests = ENV['REAL_REQUESTS']
 RSpec.configure do |config|
   config.before(:each) do
       VCR.eject_cassette
+      puts "Ejected cassette - running real requests"
   end if real_requests
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true

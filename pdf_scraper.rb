@@ -10,7 +10,6 @@ class PdfScraper < Logging
   SENATOR_PATH = '/~/media/03%20Senators%20and%20Members/31%20Senators/contacts/los.pdf'
   SENATOR_URL = "http://#{PDF_HOST}#{SENATOR_PATH}"
 
-
   def scrape
     scrape_pdf(MP_URL, :representatives).merge(scrape_pdf(SENATOR_URL, :senate))
   end
@@ -37,41 +36,62 @@ private
     line =~ /^\**\d+\s{3,}/ && line[5..6] == '  '
   end
 
-  def read_senator_key(line)
-    state = line[SENATOR_STATE_START_COL..-1].split(' ')[0].downcase
-    state = line[SENATOR_STATE_START_COL..-1].split(' ')[1].downcase if state.index(')')
-    words = line[7..-1].split(' ').map {|w| w.downcase }
-    return nil if words.length < 3
-    last_name = words[0].chomp(',')
-    first_name = nil
-    if words.length > 3 && words[2] == 'the' && words[3] == 'hon'
-      first_name = words[4]
-    else
-      first_name = words[2]
-    end
+  def read_senator_details(line)
+    electorate_tel = read_electorate_tel(line)
+    state, surname = read_senator_state_and_surname(line)
+    {'electorate_tel' => electorate_tel, 'state' => state.downcase, 'surname' => surname.gsub('*', '').downcase}
+  end
 
-    "#{state}.#{first_name} #{last_name}"
+  def read_senator_state_and_surname(line)
+    state = line[SENATOR_STATE_START_COL..-1].split(' ')[0]
+    state = line[SENATOR_STATE_START_COL..-1].split(' ')[1] if state.index(')')
+    words = line[7..-1].split(' ')
+    return nil if words.length < 3
+    surname = words[0].chomp(',')
+
+    [state.downcase, surname.downcase]
+  end
+
+  def read_electorate_tel(line)
+    matches = line.match /(\(\d{2}\)\s*\d{4}\s*\d{4})$/
+    matches ? matches[0] : nil
+  end
+
+  def read_mp_details(lines)
+    lines.reverse.each do |line|
+      if matches = line.match(/Tel:\s*(\(\d{2}\)\s*\d{4}\s*\d{4})$/)
+        tel = matches[1]
+        surname = line.match(/\**[^,]*/)[0]
+      end
+
+      line = line[MP_ELECTORATE_START_COL..MP_EMAIL_START_COL]
+      if line && line.index(',')
+        electorate = line.split(',').first.strip.chomp(',')
+        return [tel, surname.gsub('*', '').downcase, electorate.downcase]
+      end
+    end
+    nil
   end
 
   def read_senator_data(lines)
     records = {}
-    senator_key = nil
+    senator_details = nil
     lines.each_with_index do |line, index|
       if new_senator_line?(line)
-        @logger.warn("Detected new senator but previous senator's email not recoreded: #{senator_key}") if senator_key
-        senator_key = read_senator_key(line) 
-        @logger.debug("New senator key: #{senator_key}")
+        @logger.warn("Detected new senator but previous senator's email not recorded: #{senator_details['email']}") if senator_details
+        senator_details = read_senator_details(line) 
+        @logger.debug("New senator key: #{senator_details}")
       end
 
       if read_email('Email:', SENATOR_EMAIL_START_COL, line)
         email = read_email('Email:', SENATOR_EMAIL_START_COL, line)
-        if senator_key
-          records[senator_key] = {email: email, house: :senate}
-          @logger.debug("Added senator: #{senator_key} => #{email}")
+        if senator_details
+          records[senator_details['electorate_tel']] = senator_details.merge({'email' => email, 'type' => 'senator'})
+          @logger.debug("Added senator: #{senator_details} => #{email}")
         else
           @logger.warn("Detected email but senator is not known: #{email}")
         end
-        senator_key = nil
+        senator_details = nil
       end
     end
     records
@@ -82,8 +102,8 @@ private
     line_buffer = []
     lines.each_with_index do |line, index|
       if email = read_email('E-mail:', MP_EMAIL_START_COL, line)
-        electorate = find_electorate(line_buffer)
-        records[electorate] = {email: email, house: :representatives} if electorate
+        tel, surname, electorate = read_mp_details(line_buffer)
+        records[tel] = {'email' => email, 'electorate_tel' => tel, 'electorate' => electorate, 'surname' => surname, 'type' => 'mp'} if tel
         line_buffer = []
       else
         line_buffer << line
@@ -102,15 +122,5 @@ private
     else
       nil
     end
-  end
-
-  def find_electorate(lines)
-    lines.reverse!.each do |line|
-      line = line[MP_ELECTORATE_START_COL..MP_EMAIL_START_COL]
-      if line && line.index(',')
-        return line.split(',').first.strip.chomp(',')
-      end
-    end
-    nil
   end
 end

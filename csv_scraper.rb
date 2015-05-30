@@ -10,15 +10,15 @@ class CsvScraper
   SENATOR_CSV_URL = "http://#{CSV_HOST}#{SENATOR_CSV_PATH}"
 
   def scrape
-    scrape_csv(MP_CSV_URL, false).merge(scrape_csv(SENATOR_CSV_URL, true))
+    scrape_csv(MP_CSV_URL, :representatives).merge(scrape_csv(SENATOR_CSV_URL, :senate))
   end
 
-  def scrape_csv(url, senators)
+  def scrape_csv(url, house)
     records = {}
     csv = CSV.read(open(url), :headers => :true)
     headers = csv.headers
     csv.each do |line|
-      key, record = parse_record(line, headers, senators)
+      key, record = parse_record(line, headers, house)
       records[key] = record
     end
     records
@@ -26,17 +26,18 @@ class CsvScraper
 
 private
 
-  def parse_record(row, headers, senator)
+  def parse_record(row, headers, house)
     record = {}
-    if senator 
-      key = "#{row['State']}.#{row['First Name']} #{row['Surname']}".downcase
-      record[:type] = 'senator'
-    else
-      key = row['"Electorate"']
-      record[:type] = 'mp'
-    end
     headers.each_with_index do |header, index|
-      record[header.gsub('"', '').gsub(' ','_').downcase.to_sym] = row[index]
+      record[header.gsub('"', '').gsub(' ','_').downcase] = row[index]
+    end
+
+    if house == :senate 
+      key = record['electorate_telephone']
+      record['type'] = 'senator'
+    else
+      key = record['parliament_house_telephone']
+      record['type'] = 'mp'
     end
 
     [key, record]
