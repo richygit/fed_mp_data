@@ -2,7 +2,6 @@ require 'pdf-reader'
 require 'open-uri'
 require './logging.rb'
 
-#get MP emails
 class PdfScraper < Logging
   PDF_HOST = 'www.aph.gov.au'
   MP_PATH = '/~/media/03%20Senators%20and%20Members/32%20Members/Lists/MemList.pdf'
@@ -39,7 +38,7 @@ private
   def read_senator_details(line)
     electorate_tel = read_electorate_tel(line)
     state, surname = read_senator_state_and_surname(line)
-    {'electorate_tel' => electorate_tel, 'state' => state.downcase, 'surname' => surname.gsub('*', '').downcase}
+    {'electorate_tel' => electorate_tel, 'state' => state, 'surname' => surname.gsub('*', '')}
   end
 
   def read_senator_state_and_surname(line)
@@ -49,7 +48,7 @@ private
     return nil if words.length < 3
     surname = words[0].chomp(',')
 
-    [state.downcase, surname.downcase]
+    [state, surname]
   end
 
   def read_electorate_tel(line)
@@ -58,18 +57,24 @@ private
   end
 
   def read_mp_details(lines)
+    tel = nil
+    surname = nil
+    electorate = nil
     lines.reverse.each do |line|
       if matches = line.match(/Tel:\s*(\(\d{2}\)\s*\d{4}\s*\d{4})$/)
         tel = matches[1]
-        surname = line.match(/\**[^,]*/)[0]
+      end
+      if surname_match = line.match(/^\**([^, ]*),/)
+        surname = surname_match[1]
       end
 
       line = line[MP_ELECTORATE_START_COL..MP_EMAIL_START_COL]
       if line && line.index(',')
         electorate = line.split(',').first.strip.chomp(',')
-        return [tel, surname.gsub('*', '').downcase, electorate.downcase]
       end
+      return [tel, surname.gsub('*', ''), electorate] if electorate && surname && tel
     end
+    @logger.warn("No MP logged for: #{lines}")
     nil
   end
 
@@ -78,7 +83,7 @@ private
     senator_details = nil
     lines.each_with_index do |line, index|
       if new_senator_line?(line)
-        @logger.warn("Detected new senator but previous senator's email not recorded: #{senator_details['email']}") if senator_details
+        @logger.warn("Detected new senator but previous senator's email not recorded: #{senator_details}") if senator_details
         senator_details = read_senator_details(line) 
         @logger.debug("New senator key: #{senator_details}")
       end

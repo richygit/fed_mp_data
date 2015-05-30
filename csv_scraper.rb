@@ -29,7 +29,8 @@ private
   def parse_record(row, headers, house)
     record = {}
     headers.each_with_index do |header, index|
-      record[header.gsub('"', '').gsub(' ','_').downcase] = row[index]
+      val = row[index] ? row[index].strip : nil
+      record[header.gsub('"', '').gsub(' ','_').downcase] = val
     end
 
     if house == :senate 

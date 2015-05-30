@@ -15,13 +15,13 @@ class ScraperMain < Logging
 
   def match_on_secondary_data(csv, record)
     if record['type'] == 'mp'
-      match = csv.find {|k, v| v['electorate'] == record['electorate'] }
+      match = csv.find {|k, v| v['electorate'].casecmp(record['electorate']) == 0 }
     else
-      match = csv.find {|k, v| v['surname'] == record['surname'] && v['electorate_state'] == record['state'] }
+      match = csv.find {|k, v| v['surname'].casecmp(record['surname']) == 0 && v['electorate_state'].casecmp(record['state']) == 0 }
     end
 
     if match
-      match.merge!(record)
+      match[1].merge!(record)
     else
       binding.pry
       puts("Unable to find match for: #{record}")
