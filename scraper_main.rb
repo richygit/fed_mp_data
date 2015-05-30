@@ -15,9 +15,9 @@ class ScraperMain < Logging
 
   def match_on_secondary_data(csv, record)
     if record['type'] == 'mp'
-      match = csv.find {|k, v| v['electorate'].casecmp(record['electorate']) == 0 }
+      match = csv.find {|k, v| v['type'] == 'mp' && v['electorate'].casecmp(record['electorate']) == 0 }
     else
-      match = csv.find {|k, v| v['surname'].casecmp(record['surname']) == 0 && v['electorate_state'].casecmp(record['state']) == 0 }
+      match = csv.find {|k, v| v['type'] == 'senator' && v['surname'].casecmp(record['surname']) == 0 && v['electorate_state'].casecmp(record['state']) == 0 }
     end
 
     if match
