@@ -66,6 +66,15 @@ describe PdfScraper do
                 'Broadbent, Mr Russell Evan']
       expect(subject.send(:read_mp_details, lines)).to eq ['(02) 6277 4233', 'Broadbent', 'McMillan']
     end
+
+    it "should read MP's details when their first name starts a new line" do
+      lines = [ 'van Manen, Mr Albertus                 Forde,              LP        Tenancy 4/96 George Street (PO Box 884), Beenleigh             Tel: (02) 6277 4719',
+              '                                       Qld                           Qld 4207                                                       Fax: (02) 6277 8553',
+              'Johannes (Bert)',
+              '                                                                     Tel : (07) 3807 6340, Fax : (07) 3807 1990',
+              '                                                                     E-mail: bert.vanmanen.mp@aph.gov.au']
+      expect(subject.send(:read_mp_details, lines)).to eq ['(02) 6277 4719', 'van Manen', 'Forde']
+    end
   end
 
   describe "#read_email" do

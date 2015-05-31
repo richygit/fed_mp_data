@@ -64,7 +64,7 @@ private
       if matches = line.match(/Tel:\s*(\(\d{2}\)\s*\d{4}\s*\d{4})$/)
         tel = matches[1]
       end
-      if surname_match = line.match(/^\**([^, ]*),/)
+      if surname_match = line.match(/^\**(\w[^,]*),/)
         surname = surname_match[1]
       end
 
