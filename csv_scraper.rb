@@ -16,9 +16,12 @@ class CsvScraper
   def scrape_csv(url, house)
     records = {}
     csv = CSV.read(open(url), :headers => :true)
-    headers = csv.headers
     csv.each do |line|
-      key, record = parse_record(line, headers, house)
+      if house == :representatives
+        key, record = parse_mp_record(line)
+      else
+        key, record = parse_senator_record(line)
+      end
       records[key] = record
     end
     records
@@ -26,21 +29,59 @@ class CsvScraper
 
 private
 
-  def parse_record(row, headers, house)
+  def senator_electorate_address(row)
+    address = row["Electorate AddressLine1"]
+    if row["Electorate AddressLine2"] && row["Electorate AddressLine2"].strip.length > 0
+      address = "#{address}, #{row["Electorate AddressLine2"]}"
+    end
+    address.squeeze(' ').strip
+  end
+
+  def parse_senator_record(row)
     record = {}
-    headers.each_with_index do |header, index|
-      val = row[index] ? row[index].strip : nil
-      record[header.gsub('"', '').gsub(' ','_').downcase] = val
-    end
+    record['last_name'] = row["Surname"]
+    record['first_name'] = row["First Name"]
+    record['party'] = row["Political Party"]
+    record['state'] = row["State"]
+    record['office_address'] = senator_electorate_address(row)
+    record['office_suburb'] = row["Electorate Suburb"]
+    record['office_state'] = row["Electorate State"]
+    record['office_postcode'] = row["Electorate Postcode"]
+    record['mailing_address'] = row["Label Address"]
+    record['mailing_suburb'] = row["Label Suburb"]
+    record['mailing_state'] = row["Label State"]
+    record['mailing_postcode'] = row["Label Postcode"]
 
-    if house == :senate 
-      key = record['electorate_telephone']
-      record['type'] = 'senator'
-    else
-      key = record['parliament_house_telephone']
-      record['type'] = 'mp'
-    end
-
+    record['office_fax'] = row["Electorate Fax"]
+    record['office_phone'] = row["Electorate Telephone"]
+  #`email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  #`parliament_phone` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  #`parliament_fax` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  
+    key = record['office_phone']
+    record['type'] = 'senator'
     [key, record]
   end
+
+  def parse_mp_record(row)
+    record = {}
+    record['last_name'] = row["\"Surname\""]
+    record['first_name'] = row["\"First Name\""]
+    record['parliament_phone'] = row["\"Parliament House Telephone\""]
+    record['parliament_fax'] = row["\"Parliament House Fax\""]
+    record['party'] = row["\"Political Party\""]
+    record['electorate'] = row["\"Electorate\""]
+    record['office_address'] = row["\"Electorate Office Postal Address\""]
+    record['office_suburb'] = row["\"Electorate Office Postal Suburb\""]
+    record['office_state'] = row["\"Electorate Office Postal State\""]
+    record['office_postcode'] = row["\"Electorate Office Postal PostCode\""]
+    record['office_fax'] = row["\"Electorate Office Fax\""]
+    record['office_phone'] = row["\"Electorate Office Phone\""]
+
+    #missing email
+    key = record['parliament_phone']
+    record['type'] = 'mp'
+    [key, record]
+  end
+
 end
