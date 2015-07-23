@@ -51,12 +51,8 @@ private
     record['mailing_suburb'] = row["Label Suburb"]
     record['mailing_state'] = row["Label State"]
     record['mailing_postcode'] = row["Label Postcode"]
-
     record['office_fax'] = row["Electorate Fax"]
     record['office_phone'] = row["Electorate Telephone"]
-  #`email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  #`parliament_phone` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  #`parliament_fax` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   
     key = record['office_phone']
     record['type'] = 'senator'
@@ -78,7 +74,6 @@ private
     record['office_fax'] = row["\"Electorate Office Fax\""]
     record['office_phone'] = row["\"Electorate Office Phone\""]
 
-    #missing email
     key = record['parliament_phone']
     record['type'] = 'mp'
     [key, record]
