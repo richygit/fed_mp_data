@@ -1,7 +1,10 @@
 require './logging.rb'
 require_relative 'pdf_scraper'
+require_relative 'scraper_helper'
 
 class PdfSenatorScraper < PdfScraper
+  include ScraperHelper
+
   SENATOR_EMAIL_START_COL = 73
   SENATOR_STATE_START_COL = 52
   SENATOR_PATH = '/~/media/03%20Senators%20and%20Members/31%20Senators/contacts/los.pdf'
@@ -31,10 +34,6 @@ class PdfSenatorScraper < PdfScraper
     [state, last_name]
   end
 
-  def senator_key(senator_details)
-    "#{senator_details['last_name']}-#{senator_details['state']}"
-  end
-
   def read_data(lines)
     records = {}
     senator_details = nil
@@ -48,7 +47,7 @@ class PdfSenatorScraper < PdfScraper
       if read_email('Email:', SENATOR_EMAIL_START_COL, line)
         email = read_email('Email:', SENATOR_EMAIL_START_COL, line)
         if senator_details
-          records[senator_key(senator_details)] = senator_details.merge({'email' => email, 'type' => 'senator'})
+          records[senator_key(senator_details['last_name'], senator_details['state'])] = senator_details.merge({'email' => email, 'type' => 'senator'})
           @logger.debug("Added senator: #{senator_details} => #{email}")
         else
           @logger.warn("Detected email but senator is not known: #{email}")

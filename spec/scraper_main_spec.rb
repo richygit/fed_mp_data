@@ -7,6 +7,66 @@ RSpec.describe ScraperMain do
     ScraperWiki::sqliteexecute("drop table if exists data")
   end
 
+  describe "#match_on_secondary_data" do
+    it "should match on surname and state" do
+      pdf_record = {"electorate_tel"=>"(07) 3862 4044", "state"=>"QLD", "surname"=>"Brandis", "email"=>"senator.brandis@aph.gov.au", "type"=>"senator"}
+      csv_records = {"(07) 3862 4244"=>
+        {"title"=>"Senator the Hon",
+         "surname"=>"Brandis",
+         "first_name"=>"George",
+         "other_names"=>"Henry",
+         "prefered_name"=>"George",
+         "initials"=>"G. H.",
+         "honorifics"=>"QC",
+         "salutation"=>"Senator",
+         "gender"=>"MALE",
+         "political_party"=>"LP",
+         "state"=>"Qld",
+         "electorate_addressline1"=>"349 Sandgate Road",
+         "electorate_addressline2"=>nil,
+         "electorate_suburb"=>"Albion",
+         "electorate_state"=>"Qld",
+         "electorate_postcode"=>"4010",
+         "label_address"=>"PO Box 143",
+         "label_suburb"=>"Albion DC",
+         "label_state"=>"Qld",
+         "label_postcode"=>"4010",
+         "electorate_fax"=>"(07) 3862 4044",
+         "electorate_telephone"=>"(07) 3862 4244",
+         "electorate_toll_free"=>nil,
+         "parliamentary_titles"=>"Attorney-General, Minister for Arts, Vice-President of the Executive Council, Deputy Leader of the Government in the Senate",
+         "type"=>"senator"}}
+      subject.match_on_secondary_data(csv_records, pdf_record)
+      expect(csv_records["(07) 3862 4244"]).to eq({"title"=>"Senator the Hon",
+         "surname"=>"Brandis",
+         "first_name"=>"George",
+         "other_names"=>"Henry",
+         "prefered_name"=>"George",
+         "initials"=>"G. H.",
+         "honorifics"=>"QC",
+         "salutation"=>"Senator",
+         "gender"=>"MALE",
+         "political_party"=>"LP",
+         "state"=>"QLD",
+         "electorate_addressline1"=>"349 Sandgate Road",
+         "electorate_addressline2"=>nil,
+         "electorate_suburb"=>"Albion",
+         "electorate_state"=>"Qld",
+         "electorate_postcode"=>"4010",
+         "label_address"=>"PO Box 143",
+         "label_suburb"=>"Albion DC",
+         "label_state"=>"Qld",
+         "label_postcode"=>"4010",
+         "electorate_fax"=>"(07) 3862 4044",
+         "electorate_telephone"=>"(07) 3862 4244",
+         "electorate_toll_free"=>nil,
+         "parliamentary_titles"=>"Attorney-General, Minister for Arts, Vice-President of the Executive Council, Deputy Leader of the Government in the Senate",
+         "type"=>"senator",
+         "electorate_tel"=>"(07) 3862 4044",
+         "email"=>"senator.brandis@aph.gov.au"})
+    end
+  end
+
   describe "#main" do
     before(:each) do
       allow_any_instance_of(CsvScraper).to receive(:scrape).and_return({durack: DURACK_RECORD})

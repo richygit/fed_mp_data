@@ -1,8 +1,11 @@
 require 'csv'
 require 'open-uri'
+require_relative 'scraper_helper'
 
 #get detailed info of MPs including titles and cabinet positions
 class CsvScraper
+  include ScraperHelper
+
   CSV_HOST = 'www.aph.gov.au'
   MP_CSV_PATH = '/~/media/03%20Senators%20and%20Members/Address%20Labels%20and%20CSV%20files/SurnameRepsCSV.csv'
   SENATOR_CSV_PATH = '/~/media/03%20Senators%20and%20Members/Address%20Labels%20and%20CSV%20files/allsenel.csv'
@@ -54,7 +57,7 @@ private
     record['office_fax'] = row["Electorate Fax"]
     record['office_phone'] = row["Electorate Telephone"]
   
-    key = record['office_phone']
+    key = senator_key(record['last_name'], record['state'])
     record['type'] = 'senator'
     [key, record]
   end
@@ -74,7 +77,7 @@ private
     record['office_fax'] = row["\"Electorate Office Fax\""]
     record['office_phone'] = row["\"Electorate Office Phone\""]
 
-    key = record['parliament_phone']
+    key = mp_key(record['last_name'], record['electorate'])
     record['type'] = 'mp'
     [key, record]
   end

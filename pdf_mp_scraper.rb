@@ -1,7 +1,10 @@
 require './logging.rb'
 require_relative 'pdf_scraper'
+require_relative 'scraper_helper'
 
 class PdfMpScraper < PdfScraper
+  include ScraperHelper
+
   MP_EMAIL_START_COL = 67
   MP_ELECTORATE_START_COL = 37
   MP_PATH = '/~/media/03%20Senators%20and%20Members/32%20Members/Lists/MemList.pdf'
@@ -27,10 +30,6 @@ class PdfMpScraper < PdfScraper
     end
     @logger.warn("No MP logged for: #{lines}")
     nil
-  end
-
-  def mp_key(last_name, electorate)
-    "#{last_name}-#{electorate}"
   end
 
   def read_data(lines)

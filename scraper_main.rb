@@ -1,12 +1,11 @@
 require 'scraperwiki'
 require './logging'
 
-require_relative 'web_scraper'
 require_relative 'csv_scraper'
 require_relative 'pdf_scraper'
+require_relative 'scraper_helper'
 
 class ScraperMain < Logging
-
   def initialize
     super
     @logger = Logger.new($stdout)
@@ -23,7 +22,6 @@ class ScraperMain < Logging
     if match
       match[1].merge!(record)
     else
-      binding.pry
       puts("Unable to find match for: #{record}")
       @logger.error("Unable to find match for: #{record}")
     end
@@ -45,7 +43,9 @@ class ScraperMain < Logging
     @logger.info('Scraping CSV')
     csv_records = CsvScraper.new.scrape
     @logger.info("Scraping PDF")
-    pdf_records = PdfScraper.new.scrape
+    pdf_mps = PdfMpScraper.new.scrape
+    pdf_senators = PdfSenatorScraper.new.scrape
+    pdf_records = pdf_mps.merge(pdf_senators)
     csv_records = merge_into_csv(pdf_records, csv_records)
 
     csv_records.each do |electorate, record|
