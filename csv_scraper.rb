@@ -59,7 +59,7 @@ private
     record['office_fax'] = row["Electorate Fax"]
     record['office_phone'] = row["Electorate Telephone"]
   
-    key = senator_key(record['last_name'], record['state'])
+    key = senator_key(record['last_name'], record['state'].upcase)
     record['type'] = 'senator'
     [key, record]
   end

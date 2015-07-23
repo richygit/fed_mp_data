@@ -2,7 +2,8 @@ require 'scraperwiki'
 require './logging'
 
 require_relative 'csv_scraper'
-require_relative 'pdf_scraper'
+require_relative 'pdf_mp_scraper'
+require_relative 'pdf_senator_scraper'
 require_relative 'scraper_helper'
 
 class ScraperMain < Logging
@@ -12,46 +13,32 @@ class ScraperMain < Logging
     ScraperWiki.config = { db: 'data.sqlite', default_table_name: 'data' }
   end
 
-  def match_on_secondary_data(csv, record)
-    if record['type'] == 'mp'
-      match = csv.find {|k, v| v['type'] == 'mp' && v['electorate'].casecmp(record['electorate']) == 0 }
-    else
-      match = csv.find {|k, v| v['type'] == 'senator' && v['surname'].casecmp(record['surname']) == 0 && v['electorate_state'].casecmp(record['state']) == 0 }
-    end
-
-    if match
-      match[1].merge!(record)
-    else
-      puts("Unable to find match for: #{record}")
-      @logger.error("Unable to find match for: #{record}")
-    end
-  end
-
-  def merge_into_csv(pdf, csv)
-    pdf.each do |electorate_tel, record|
-      csv_match = csv[electorate_tel]
-      if csv_match
-        csv_match.merge!(record)
+  def merge(src, dest)
+    src.each do |key, record|
+      if dest[key]
+        dest[key].merge!(record)
       else
-        match_on_secondary_data(csv, record)
+        @logger.warn("No matching record for: #{key}")
       end
     end
-    csv
+    dest
   end
 
   def main
     @logger.info('Scraping CSV')
     csv_records = CsvScraper.new.scrape
-    @logger.info("Scraping PDF")
+    @logger.info("Scraping PDF MPs")
     pdf_mps = PdfMpScraper.new.scrape
+    @logger.info("Scraping PDF Senators")
     pdf_senators = PdfSenatorScraper.new.scrape
     pdf_records = pdf_mps.merge(pdf_senators)
-    csv_records = merge_into_csv(pdf_records, csv_records)
+    @logger.warn("PDF records lost in merge! Expected: #{pdf_mps.size + pdf_senators.size}. Was: #{pdf_records.size}") if pdf_mps.size + pdf_senators.size != pdf_records.size
+    merge(pdf_records, csv_records)
 
-    csv_records.each do |electorate, record|
-      @logger.info("### Saving #{record['first_name']} #{record['surname']}")
-      puts("### Saving #{record['first_name']} #{record['surname']}")
-      ScraperWiki::save(['first_name', 'surname', 'state'], record)
+    csv_records.each do |key, record|
+      @logger.info("### Saving #{record['first_name']} #{record['last_name']}")
+      puts("### Saving #{record['first_name']} #{record['last_name']}")
+      ScraperWiki::save(['first_name', 'last_name', 'office_state'], record)
     end
   end
 end

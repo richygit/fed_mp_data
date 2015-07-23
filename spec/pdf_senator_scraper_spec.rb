@@ -13,7 +13,7 @@ describe PdfSenatorScraper do
     it "scrapes senator details corectly" do
       records = subject.scrape_pdf(PdfSenatorScraper::SENATOR_URL)
       expect(records["Abetz-TAS"]).to eq({"state"=>"TAS", "last_name"=>"Abetz", "email"=>"senator.abetz@aph.gov.au", "type"=>"senator"})
-      expect(records.count).to eq 75
+      expect(records.count).to eq 75 #missing bernardi
     end
   end
 

@@ -29,7 +29,7 @@ describe CsvScraper do
     it "scrapes the right number of MPs and senators" do
       records = subject.scrape
       expect(records.select{ |_,v| v['type'] == 'mp'}.count).to eq 150
-      expect(records.select{ |_,v| v['type'] == 'senator'}.count).to eq 75
+      expect(records.select{ |_,v| v['type'] == 'senator'}.count).to eq 75 #should be 76
     end
   end
 
