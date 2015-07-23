@@ -9,10 +9,10 @@ describe PdfSenatorScraper do
     end
   end
 
-  describe "#scrape_pdf", :vcr do
+  describe "#scrape", :vcr do
     it "scrapes senator details corectly" do
       records = subject.scrape_pdf(PdfSenatorScraper::SENATOR_URL)
-      expect(records["(03) 6224 3707"]).to eq({"electorate_tel"=>"(03) 6224 3707", "state"=>"TAS", "surname"=>"Abetz", "email"=>"senator.abetz@aph.gov.au", "type"=>"senator"})
+      expect(records["Abetz-TAS"]).to eq({"state"=>"TAS", "last_name"=>"Abetz", "email"=>"senator.abetz@aph.gov.au", "type"=>"senator"})
       expect(records.count).to eq 75
     end
   end
@@ -24,25 +24,25 @@ describe PdfSenatorScraper do
     specify { expect(subject.send(:new_senator_line?, "3    Chosen by the Australian Capital Territory Legislative Assemblya casual vacancy(vice K. Lundy), pursuant to section 15 of the Constitution.  ")).to be_falsey }
   end
 
-  describe "#read_senator_state_and_surname" do
+  describe "#read_senator_state_and_last_name" do
     it "should senator read state and surname" do
       line = '2      Back, Senator Christopher John (Chris)        WA          LP      Unit E5, 817 Beeliar Drive,                       (08) 9414 7288'
-      expect(subject.send(:read_senator_state_and_surname, line)).to eq ['WA', 'Back']
+      expect(subject.send(:read_senator_state_and_last_name, line)).to eq ['WA', 'Back']
     end
 
     it "should read senators with title 'the hon'" do
       line = '1      Abetz, Senator the Hon Eric                   TAS         LP      Highbury House, 136 Davey Street,                 (03) 6224 3707'
-      expect(subject.send(:read_senator_state_and_surname, line)).to eq ['TAS', 'Abetz']
+      expect(subject.send(:read_senator_state_and_last_name, line)).to eq ['TAS', 'Abetz']
     end
 
     it "should handle extra long name columns" do
       line = '24     Fifield, Senator the Hon Mitchell Peter (Mitch) VIC         LP      42 Florence Street, Mentone VIC 3194               (03) 9584 2455'
-      expect(subject.send(:read_senator_state_and_surname, line)).to eq ['VIC', 'Fifield']
+      expect(subject.send(:read_senator_state_and_last_name, line)).to eq ['VIC', 'Fifield']
     end
 
     it "should handle state starting in a different column" do
       line = '73     Williams, Senator John Reginald              NSW        NATS      144 Byron Street, Inverell NSW 2360              (02) 6721 4500'
-      expect(subject.send(:read_senator_state_and_surname, line)).to eq ['NSW', 'Williams']
+      expect(subject.send(:read_senator_state_and_last_name, line)).to eq ['NSW', 'Williams']
     end
   end
 

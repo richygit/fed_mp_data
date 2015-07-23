@@ -9,11 +9,11 @@ describe PdfMpScraper do
     end
   end
 
-  describe "#scrape_pdf", :vcr do
+  describe "#scrape", :vcr do
     it "scrapes MP details correctly" do
       records = subject.scrape_pdf(PdfMpScraper::MP_URL)
-      expect(records["(02) 6277 7500"]).to eq({"email"=>"Julie.Bishop.MP@aph.gov.au", "electorate_tel"=>"(02) 6277 7500", "electorate"=>"Curtin", "surname"=>"Bishop", "type"=>"mp"})
-      expect(records["(02) 6277 4242"]).to eq({"email"=>"Melissa.Price.MP@aph.gov.au", "electorate_tel"=>"(02) 6277 4242", "electorate"=>"Durack", "surname"=>"Price", "type"=>"mp"})
+      expect(records["Bishop-Curtin"]).to eq({"email"=>"Julie.Bishop.MP@aph.gov.au", "electorate"=>"Curtin", "last_name"=>"Bishop", "type"=>"mp"})
+      expect(records["Price-Durack"]).to eq({"email"=>"Melissa.Price.MP@aph.gov.au", "electorate"=>"Durack", "last_name"=>"Price", "type"=>"mp"})
 
       expect(records.count).to eq 148
     end
@@ -22,13 +22,13 @@ describe PdfMpScraper do
   describe "#read_mp_details" do
     it "should read the MP's details" do
       lines = ['Abbott, The Hon Anthony John         Warringah,         LP         Level 2, 17 Sydney Road (PO Box 450), Manly                 Tel: (02) 6277 7700']
-      expect(subject.send(:read_mp_details, lines)).to eq ['(02) 6277 7700', 'Abbott', 'Warringah']
+      expect(subject.send(:read_mp_details, lines)).to eq ['Abbott', 'Warringah']
     end
 
     it "should read the MP's details even when the order is backwards" do
       lines = ['                                       McMillan,           LP        46C Albert Street, Warragul Vic 3820                           Tel: (02) 6277 4233',
                 'Broadbent, Mr Russell Evan']
-      expect(subject.send(:read_mp_details, lines)).to eq ['(02) 6277 4233', 'Broadbent', 'McMillan']
+      expect(subject.send(:read_mp_details, lines)).to eq ['Broadbent', 'McMillan']
     end
 
     it "should read MP's details when their first name starts a new line" do
@@ -37,7 +37,7 @@ describe PdfMpScraper do
               'Johannes (Bert)',
               '                                                                     Tel : (07) 3807 6340, Fax : (07) 3807 1990',
               '                                                                     E-mail: bert.vanmanen.mp@aph.gov.au']
-      expect(subject.send(:read_mp_details, lines)).to eq ['(02) 6277 4719', 'van Manen', 'Forde']
+      expect(subject.send(:read_mp_details, lines)).to eq ['van Manen', 'Forde']
     end
   end
 

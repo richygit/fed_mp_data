@@ -16,30 +16,25 @@ class PdfSenatorScraper < PdfScraper
     line =~ /^\**\d+\s{3,}/ && line[5..6] == '  '
   end
 
-  def read_electorate_tel(line)
-    matches = line.match /(\(\d{2}\)\s*\d{4}\s*\d{4})$/
-    matches ? matches[0] : nil
-  end
-
   def read_senator_details(line)
-    electorate_tel = read_electorate_tel(line)
-    state, surname = read_senator_state_and_surname(line)
-    {'electorate_tel' => electorate_tel, 'state' => state, 'surname' => surname.gsub('*', '')}
+    state, last_name = read_senator_state_and_last_name(line)
+    {'state' => state, 'last_name' => last_name.gsub('*', '')}
   end
 
-  def read_senator_state_and_surname(line)
+  def read_senator_state_and_last_name(line)
     state = line[SENATOR_STATE_START_COL..-1].split(' ')[0]
     state = line[SENATOR_STATE_START_COL..-1].split(' ')[1] if state.index(')')
     words = line[7..-1].split(' ')
     return nil if words.length < 3
-    surname = words[0].chomp(',')
+    last_name = words[0].chomp(',')
 
-    [state, surname]
+    [state, last_name]
   end
 
-  #`email` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  # last_name, state (key)
-  # TODO key should be last_name-state
+  def senator_key(senator_details)
+    "#{senator_details['last_name']}-#{senator_details['state']}"
+  end
+
   def read_data(lines)
     records = {}
     senator_details = nil
@@ -53,7 +48,7 @@ class PdfSenatorScraper < PdfScraper
       if read_email('Email:', SENATOR_EMAIL_START_COL, line)
         email = read_email('Email:', SENATOR_EMAIL_START_COL, line)
         if senator_details
-          records[senator_details['electorate_tel']] = senator_details.merge({'email' => email, 'type' => 'senator'})
+          records[senator_key(senator_details)] = senator_details.merge({'email' => email, 'type' => 'senator'})
           @logger.debug("Added senator: #{senator_details} => #{email}")
         else
           @logger.warn("Detected email but senator is not known: #{email}")

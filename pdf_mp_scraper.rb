@@ -11,28 +11,26 @@ class PdfMpScraper < PdfScraper
     scrape_pdf(MP_URL)
   end
 
-  #email
-  #surname, state (key)
   def read_mp_details(lines)
-    tel = nil
-    surname = nil
+    last_name = nil
     electorate = nil
     lines.reverse.each do |line|
-      if matches = line.match(/Tel:\s*(\(\d{2}\)\s*\d{4}\s*\d{4})$/)
-        tel = matches[1]
-      end
-      if surname_match = line.match(/^\**(\w[^,]*),/)
-        surname = surname_match[1]
+      if last_name_match = line.match(/^\**(\w[^,]*),/)
+        last_name = last_name_match[1]
       end
 
       line = line[MP_ELECTORATE_START_COL..MP_EMAIL_START_COL]
       if line && line.index(',')
         electorate = line.split(',').first.strip.chomp(',')
       end
-      return [tel, surname.gsub('*', ''), electorate] if electorate && surname && tel
+      return [last_name.gsub('*', ''), electorate] if electorate && last_name
     end
     @logger.warn("No MP logged for: #{lines}")
     nil
+  end
+
+  def mp_key(last_name, electorate)
+    "#{last_name}-#{electorate}"
   end
 
   def read_data(lines)
@@ -40,8 +38,8 @@ class PdfMpScraper < PdfScraper
     line_buffer = []
     lines.each_with_index do |line, index|
       if email = read_email('E-mail:', MP_EMAIL_START_COL, line)
-        tel, surname, electorate = read_mp_details(line_buffer)
-        records[tel] = {'email' => email, 'electorate_tel' => tel, 'electorate' => electorate, 'surname' => surname, 'type' => 'mp'} if tel
+        last_name, electorate = read_mp_details(line_buffer)
+        records[mp_key(last_name, electorate)] = {'email' => email, 'electorate' => electorate, 'last_name' => last_name, 'type' => 'mp'}
         line_buffer = []
       else
         line_buffer << line
@@ -49,5 +47,4 @@ class PdfMpScraper < PdfScraper
     end
     records
   end
-
 end
