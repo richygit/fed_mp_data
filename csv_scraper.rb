@@ -1,9 +1,10 @@
 require 'csv'
 require 'open-uri'
+require './logging'
 require_relative 'scraper_helper'
 
 #get detailed info of MPs including titles and cabinet positions
-class CsvScraper
+class CsvScraper < Logging
   include ScraperHelper
 
   CSV_HOST = 'www.aph.gov.au'
@@ -25,6 +26,7 @@ class CsvScraper
       else
         key, record = parse_senator_record(line)
       end
+      @logger.warn("Key clash! #{key}") if records[key]
       records[key] = record
     end
     records

@@ -20,16 +20,16 @@ describe CsvScraper do
   describe "#scrape", :vcr do
     it "scrapes details correctly" do
       records = subject.scrape
-      curtin = records["(02) 6277 7500"]
+      curtin = records["Bishop-Curtin"]
       expect(curtin.to_h).to eq CURTIN_RECORD
-      xenophon = records["(08) 8232 1144"]
+      xenophon = records["Xenophon-SA"]
       expect(xenophon.to_h).to eq XENOPHON_RECORD
     end
 
     it "scrapes the right number of MPs and senators" do
       records = subject.scrape
       expect(records.select{ |_,v| v['type'] == 'mp'}.count).to eq 150
-      expect(records.select{ |_,v| v['type'] == 'senator'}.count).to eq 77
+      expect(records.select{ |_,v| v['type'] == 'senator'}.count).to eq 75
     end
   end
 
